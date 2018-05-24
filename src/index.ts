@@ -1,10 +1,4 @@
-function assert (x: boolean) {
-  if (!x) {
-    throw new Error('assertion failed')
-  }
-}
-
-class NDArray {
+export class NDArray {
   data: number[]
   shape: number[]
 
@@ -18,18 +12,13 @@ class NDArray {
   }
 
   get (indices: number[]): number {
-    assert(indices.length === this.shape.length)
-
-    let idx = indices[0]
-    for (let i = 1; i < this.shape.length; i++) {
-      idx = idx * this.shape[i - 1] + indices[i]
-    }
-
+    const idx = flattenIndices(indices, this.shape)
     return this.data[idx]
   }
 
   set (indices: number[], value: number) {
-    //
+    const idx = flattenIndices(indices, this.shape)
+    this.data[idx] = value
   }
 }
 
@@ -37,9 +26,15 @@ function createArray (raw: any[], shape?: number[]): NDArray {
   return new NDArray([], [])
 }
 
-function subscript (array: NDArray, indices: number[]): NDArray {
-  assert(indices.length <= array.shape.length)
+function flattenIndices (indices: number[], shape: number[]): number {
+  let idx = indices[0]
+  for (let i = 1; i < shape.length; i++) {
+    idx = idx * shape[i - 1] + indices[i]
+  }
+  return idx
+}
 
+function subscript (array: NDArray, indices: number[]): NDArray {
   while (indices.length < array.shape.length) {
     indices.push(null)
   }
@@ -54,5 +49,3 @@ function subscript (array: NDArray, indices: number[]): NDArray {
 
   return newArray
 }
-
-const a = new NDArray([1,2,3,4,5,6,7,8], [2,2,2])

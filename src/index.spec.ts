@@ -1,0 +1,14 @@
+import { NDArray } from './index'
+import { expect } from 'chai'
+import 'mocha'
+
+describe('NDArray', () => {
+  it('should work correctly', () => {
+    const a = new NDArray([1, 2, 3, 4, 5, 6, 7, 8], [2, 2, 2])
+    // [[[1,2], [3,4]], [[5, 6], [7, 8]]]
+
+    expect(a.get([1, 1, 0])).to.equal(7)
+    a.set([1, 1, 0], -1)
+    expect(a.get([1, 1, 0])).to.equal(-1)
+  })
+})
