@@ -25,7 +25,15 @@ export class NDArray {
     if (!isReshapable(this.shape, shape)) {
       throw new Error('incompatible shape')
     }
-    return new NDArray(this.data, shape)
+    return new NDArray(this.data.slice(), shape)
+  }
+
+  transpose (): NDArray {
+    const newArray = new NDArray(this.data.slice(), this.shape.slice().reverse())
+    for (let idx of enumerateIndices(newArray)) {
+      newArray.set(idx, this.get(idx.slice().reverse()))
+    }
+    return newArray
   }
 }
 
@@ -37,16 +45,38 @@ function isReshapable (oldShape: number[], newShape: number[]): boolean {
   return isValidShape(oldShape) && isValidShape(newShape) && oldShape.reduce((a, b) => a * b, 1) === newShape.reduce((a, b) => a * b, 1)
 }
 
+function* enumerateIndices (array: NDArray): Iterable<number[]> {
+  const { shape } = array
+  if (shape.length === 0 || shape.reduce((a, b) => a * b, 1) === 0) {
+    return
+  }
+
+  const indices = shape.map(() => 0)
+  while (indices.every((idx, i) => idx < shape[i])) {
+    yield indices.slice()
+    indices[0] += 1
+    for (let i = 1; i < indices.length; i++) {
+      if (indices[i - 1] < shape[i - 1]) {
+        break
+      }
+      indices[i - 1] = 0
+      indices[i] += 1
+    }
+  }
+}
+
 function createArray (raw: any[], shape?: number[]): NDArray {
   return new NDArray([], [])
 }
 
-function flattenIndices (indices: number[], shape: number[]): number {
-  let idx = indices[0]
-  for (let i = 1; i < shape.length; i++) {
-    idx = idx * shape[i - 1] + indices[i]
+export function flattenIndices (indices: number[], shape: number[]): number {
+  const ks = [1]
+  let k = 1
+  for (let i = shape.length - 1; i >= 1; i--) {
+    k *= shape[i]
+    ks.unshift(k)
   }
-  return idx
+  return indices.reduce((a, idx, i) => a + idx * ks[i], 0)
 }
 
 function subscript (array: NDArray, indices: number[]): NDArray {
