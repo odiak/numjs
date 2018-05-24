@@ -20,6 +20,21 @@ export class NDArray {
     const idx = flattenIndices(indices, this.shape)
     this.data[idx] = value
   }
+
+  reshape (shape: number[]): NDArray {
+    if (!isReshapable(this.shape, shape)) {
+      throw new Error('incompatible shape')
+    }
+    return new NDArray(this.data, shape)
+  }
+}
+
+function isValidShape (shape: number[]): boolean {
+  return shape.every((n) => Number.isFinite(n) && n >= 0)
+}
+
+function isReshapable (oldShape: number[], newShape: number[]): boolean {
+  return isValidShape(oldShape) && isValidShape(newShape) && oldShape.reduce((a, b) => a * b, 1) === newShape.reduce((a, b) => a * b, 1)
 }
 
 function createArray (raw: any[], shape?: number[]): NDArray {
