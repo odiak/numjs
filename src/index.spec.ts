@@ -1,4 +1,4 @@
-import { NDArray, zeros, createArray } from './index'
+import { NDArray, zeros, createArray, einsum } from './index'
 import { expect } from 'chai'
 import 'mocha'
 
@@ -80,5 +80,23 @@ describe('createArray', () => {
     expect(() => {
       createArray([[1, 2, 3], [4, 5, 6, 7]])
     }).to.throw()
+  })
+})
+
+describe('einsum', () => {
+  it('works', () => {
+    const a = createArray([
+      [1, 2, 3],
+      [4, 5, 6]
+    ])
+    const b = createArray([
+      [1],
+      [2],
+      [3]
+    ])
+    const c = einsum([['i', 'j'], ['j', 'k'], ['i', 'k']], a, b)
+    expect(c.shape).to.deep.equal([2, 1])
+    expect(c.get([0, 0])).to.equal(14)
+    expect(c.get([1, 0])).to.equal(32)
   })
 })

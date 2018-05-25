@@ -142,3 +142,83 @@ function subscript (array: NDArray, indices: number[]): NDArray {
 
   return newArray
 }
+
+export function einsum ([i1, i2, i3]: [string[], string[], string[]], a: NDArray, b: NDArray): NDArray {
+  if (i1.length !== a.shape.length) {
+    throw new Error('ah')
+  }
+  if (i2.length !== b.shape.length) {
+    throw new Error('ah')
+  }
+  const dimByIndexName: {[s: string]: number} = {}
+  for (const [i, iName] of i1.entries()) {
+    if (iName in dimByIndexName) {
+      if (dimByIndexName[iName] !== a.shape[i]) {
+        throw new Error('ah')
+      }
+    } else {
+      dimByIndexName[iName] = a.shape[i]
+    }
+  }
+  for (const [i, iName] of i2.entries()) {
+    if (iName in dimByIndexName) {
+      if (dimByIndexName[iName] !== b.shape[i]) {
+        throw new Error('ah')
+      }
+    } else {
+      dimByIndexName[iName] = b.shape[i]
+    }
+  }
+  const resultShape: Shape = []
+  const resultIndexByName: {[s: string]: number} = {}
+  for (const iName of i3) {
+    if (!(iName in dimByIndexName)) {
+      throw new Error('ah')
+    }
+    resultShape.push(dimByIndexName[iName])
+    resultIndexByName[iName] = resultShape.length - 1
+  }
+  const restIndexNames: string[] = []
+  const restShape: Shape = []
+  const restIndexByName: {[s: string]: number} = {}
+  for (const [iName, d] of Object.entries(dimByIndexName)) {
+    if (!i3.includes(iName)) {
+      restIndexNames.push(iName)
+      restShape.push(d)
+      restIndexByName[iName] = restIndexNames.length - 1
+    }
+  }
+
+  const result = zeros(resultShape)
+  for (const r of enumerateIndices(resultShape)) {
+    let sum = 0
+    const ia: Shape = i1.map(() => 0)
+    const ib: Shape = i2.map(() => 0)
+    for (const [i, iName] of i1.entries()) {
+      if (iName in resultIndexByName) {
+        ia[i] = r[resultIndexByName[iName]]
+      }
+    }
+    for (const [i, iName] of i2.entries()) {
+      if (iName in resultIndexByName) {
+        ib[i] = r[resultIndexByName[iName]]
+      }
+    }
+    for (const s of enumerateIndices(restShape)) {
+      for (const [i, iName] of i1.entries()) {
+        if (iName in restIndexByName) {
+          ia[i] = s[restIndexByName[iName]]
+        }
+      }
+      for (const [i, iName] of i2.entries()) {
+        if (iName in restIndexByName) {
+          ib[i] = s[restIndexByName[iName]]
+        }
+      }
+      sum += a.get(ia) * b.get(ib)
+    }
+    result.set(r, sum)
+  }
+
+  return result
+}
