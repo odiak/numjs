@@ -24,8 +24,8 @@ export class NDArray {
   reshape (shape: number[]): NDArray {
     const i = shape.indexOf(-1)
     if (i !== -1) {
-      const p = this.shape.reduce((a, b) => a * b, 1)
-      const q = shape.filter((n) => n >= 0).reduce((a, b) => a * b, 1)
+      const p = shapeProduct(this.shape)
+      const q = shapeProduct(shape.filter((n) => n >= 0))
       if (p % q === 0) {
         shape[i] = p / q
       }
@@ -46,17 +46,24 @@ export class NDArray {
   }
 }
 
+function shapeProduct (indices: number[]): number {
+  if (indices.length === 0) {
+    return 0
+  }
+  return indices.reduce((a, b) => a * b, 1)
+}
+
 function isValidShape (shape: number[]): boolean {
   return shape.every((n) => Number.isFinite(n) && n >= 0)
 }
 
 function isReshapable (oldShape: number[], newShape: number[]): boolean {
-  return isValidShape(oldShape) && isValidShape(newShape) && oldShape.reduce((a, b) => a * b, 1) === newShape.reduce((a, b) => a * b, 1)
+  return isValidShape(oldShape) && isValidShape(newShape) && shapeProduct(oldShape) === shapeProduct(newShape)
 }
 
 function* enumerateIndices (array: NDArray): Iterable<number[]> {
   const { shape } = array
-  if (shape.length === 0 || shape.reduce((a, b) => a * b, 1) === 0) {
+  if (shape.length === 0 || shapeProduct(shape) === 0) {
     return
   }
 
