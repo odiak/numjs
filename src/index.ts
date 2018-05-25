@@ -4,7 +4,10 @@ export class NDArray {
   data: number[]
   shape: number[]
 
-  constructor (data, shape) {
+  constructor (data: number[], shape: Shape) {
+    if (data.length !== shapeProduct(shape)) {
+      throw new Error('invalid array and shape')
+    }
     this.data = data
     this.shape = shape
   }
