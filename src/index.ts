@@ -95,8 +95,27 @@ function* enumerateIndices (array: NDArray): Iterable<number[]> {
   }
 }
 
-function createArray (raw: any[], shape?: number[]): NDArray {
-  return new NDArray([], [])
+export function createArray (raw: any[]): NDArray {
+  const shape = []
+  for (let a = raw; Array.isArray(a); a = a[0]) {
+    shape.push(a.length)
+  }
+  const data = flatten(raw)
+  if (data.length !== shapeProduct(shape) || data.some((x) => typeof x !== 'number')) {
+    throw new Error('invalid argument')
+  }
+  return new NDArray(data, shape)
+}
+
+function flatten (array: any[], dest: any[] = []): any[] {
+  for (const a of array) {
+    if (Array.isArray(a)) {
+      flatten(a, dest)
+    } else {
+      dest.push(a)
+    }
+  }
+  return dest
 }
 
 export function flattenIndices (indices: number[], shape: number[]): number {
