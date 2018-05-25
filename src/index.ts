@@ -118,7 +118,7 @@ function flatten (array: any[], dest: any[] = []): any[] {
   return dest
 }
 
-export function flattenIndices (indices: number[], shape: number[]): number {
+function flattenIndices (indices: number[], shape: number[]): number {
   const ks = [1]
   let k = 1
   for (let i = shape.length - 1; i >= 1; i--) {
