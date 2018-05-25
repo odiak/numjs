@@ -44,7 +44,7 @@ export class NDArray {
 
   transpose (): NDArray {
     const newArray = new NDArray(this.data.slice(), this.shape.slice().reverse())
-    for (let idx of enumerateIndices(newArray)) {
+    for (let idx of enumerateIndices(newArray.shape)) {
       newArray.set(idx, this.get(idx.slice().reverse()))
     }
     return newArray
@@ -75,8 +75,7 @@ function isReshapable (oldShape: number[], newShape: number[]): boolean {
   return isValidShape(oldShape) && isValidShape(newShape) && shapeProduct(oldShape) === shapeProduct(newShape)
 }
 
-function* enumerateIndices (array: NDArray): Iterable<number[]> {
-  const { shape } = array
+function* enumerateIndices (shape: Shape): Iterable<number[]> {
   if (shape.length === 0 || shapeProduct(shape) === 0) {
     return
   }
