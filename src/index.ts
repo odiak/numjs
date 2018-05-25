@@ -22,6 +22,15 @@ export class NDArray {
   }
 
   reshape (shape: number[]): NDArray {
+    const i = shape.indexOf(-1)
+    if (i !== -1) {
+      const p = this.shape.reduce((a, b) => a * b, 1)
+      const q = shape.filter((n) => n >= 0).reduce((a, b) => a * b, 1)
+      if (p % q === 0) {
+        shape[i] = p / q
+      }
+    }
+
     if (!isReshapable(this.shape, shape)) {
       throw new Error('incompatible shape')
     }

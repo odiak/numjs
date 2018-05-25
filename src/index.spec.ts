@@ -25,12 +25,22 @@ describe('NDArray', () => {
       const a = new NDArray([1, 2, 3, 4, 5, 6], [2, 3])
       const b = a.reshape([3, 2])
       expect(b.get([1, 1])).to.equal(4)
+
+      expect(a.reshape([-1, 2]).shape).to.deep.equal([3, 2])
     })
 
     it('fails', () => {
       const a = new NDArray([1, 2, 3, 4], [2, 2])
       expect(() => {
         a.reshape([3, 4])
+      }).to.throw()
+
+      expect(() => {
+        a.reshape([-1, -1])
+      }).to.throw()
+
+      expect(() => {
+        a.reshape([5, -1])
       }).to.throw()
     })
   })
