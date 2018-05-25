@@ -1,4 +1,4 @@
-import { NDArray } from './index'
+import { NDArray, zeros } from './index'
 import { expect } from 'chai'
 import 'mocha'
 
@@ -52,5 +52,19 @@ describe('NDArray', () => {
       expect(a.get([0, 1])).to.equal(b.get([1, 0]))
       expect(a.get([2, 0])).to.equal(b.get([0, 2]))
     })
+  })
+})
+
+describe('zeros', () => {
+  it('works', () => {
+    const a = zeros([3, 3])
+    expect(a.get([1, 0])).to.equal(0)
+    expect(a.get([2, 2])).to.equal(0)
+  })
+
+  it('fails', () => {
+    expect(() => {
+      zeros([-1, -1])
+    }).to.throw()
   })
 })

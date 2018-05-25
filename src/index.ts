@@ -1,3 +1,5 @@
+type Shape = number[]
+
 export class NDArray {
   data: number[]
   shape: number[]
@@ -44,6 +46,15 @@ export class NDArray {
     }
     return newArray
   }
+}
+
+export function zeros (shapeOrNumber: Shape | number): NDArray {
+  const shape = typeof shapeOrNumber === 'number' ? [shapeOrNumber] : shapeOrNumber
+  if (!isValidShape(shape)) {
+    throw new Error('invalid shape')
+  }
+  const p = shapeProduct(shape)
+  return new NDArray((new Array(p)).fill(0), shape)
 }
 
 function shapeProduct (indices: number[]): number {
