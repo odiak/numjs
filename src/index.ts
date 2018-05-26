@@ -143,81 +143,51 @@ function subscript (array: NDArray, indices: number[]): NDArray {
   return newArray
 }
 
-export function einsum ([i1, i2, i3]: [string[], string[], string[]], a: NDArray, b: NDArray): NDArray {
-  if (i1.length !== a.shape.length) {
-    throw new Error('ah')
+export function einsum (indexNameLists: Array<Array<string>>, resultIndexNames: Array<string>, ...arrays: Array<NDArray>): NDArray {
+  if (indexNameLists.length === 0) {
+    throw new Error('Specify one or more elements for 1st argument')
   }
-  if (i2.length !== b.shape.length) {
-    throw new Error('ah')
-  }
-  const dimByIndexName: {[s: string]: number} = {}
-  for (const [i, iName] of i1.entries()) {
-    if (iName in dimByIndexName) {
-      if (dimByIndexName[iName] !== a.shape[i]) {
-        throw new Error('ah')
-      }
-    } else {
-      dimByIndexName[iName] = a.shape[i]
+  for (const [i, indexNames] of indexNameLists.entries()) {
+    if (indexNames.length !== arrays[i].shape.length) {
+      throw new Error(`Number of index names and rank of array at ${i}`)
     }
   }
-  for (const [i, iName] of i2.entries()) {
-    if (iName in dimByIndexName) {
-      if (dimByIndexName[iName] !== b.shape[i]) {
-        throw new Error('ah')
+  const idByIndexName: {[s: string]: number} = {}
+  const dims: Shape = []
+  const indexIdLists = indexNameLists.map((a) => a.map((i) => 0))
+  for (const [i, indexNames] of indexNameLists.entries()) {
+    for (const [j, iName] of indexNames.entries()) {
+      if (iName in idByIndexName) {
+        if (dims[idByIndexName[iName]] !== arrays[i].shape[j]) {
+          throw new Error('shape is not matched')
+        }
+        indexIdLists[i][j] = idByIndexName[iName]
+      } else {
+        const id = dims.length
+        dims.push(arrays[i].shape[j])
+        idByIndexName[iName] = id
+        indexIdLists[i][j] = id
       }
-    } else {
-      dimByIndexName[iName] = b.shape[i]
     }
   }
+  const resultIndexIds: number[] = []
   const resultShape: Shape = []
-  const resultIndexByName: {[s: string]: number} = {}
-  for (const iName of i3) {
-    if (!(iName in dimByIndexName)) {
-      throw new Error('ah')
+  for (const iName of resultIndexNames) {
+    const id = idByIndexName[iName]
+    if (id == null) {
+      throw new Error(`Unknown index name '${iName}'`)
     }
-    resultShape.push(dimByIndexName[iName])
-    resultIndexByName[iName] = resultShape.length - 1
-  }
-  const restIndexNames: string[] = []
-  const restShape: Shape = []
-  const restIndexByName: {[s: string]: number} = {}
-  for (const [iName, d] of Object.entries(dimByIndexName)) {
-    if (!i3.includes(iName)) {
-      restIndexNames.push(iName)
-      restShape.push(d)
-      restIndexByName[iName] = restIndexNames.length - 1
-    }
+    resultIndexIds.push(id)
+    resultShape.push(dims[id])
   }
 
-  const result = zeros(resultShape)
-  for (const r of enumerateIndices(resultShape)) {
-    let sum = 0
-    const ia: Shape = i1.map(() => 0)
-    const ib: Shape = i2.map(() => 0)
-    for (const [i, iName] of i1.entries()) {
-      if (iName in resultIndexByName) {
-        ia[i] = r[resultIndexByName[iName]]
-      }
-    }
-    for (const [i, iName] of i2.entries()) {
-      if (iName in resultIndexByName) {
-        ib[i] = r[resultIndexByName[iName]]
-      }
-    }
-    for (const s of enumerateIndices(restShape)) {
-      for (const [i, iName] of i1.entries()) {
-        if (iName in restIndexByName) {
-          ia[i] = s[restIndexByName[iName]]
-        }
-      }
-      for (const [i, iName] of i2.entries()) {
-        if (iName in restIndexByName) {
-          ib[i] = s[restIndexByName[iName]]
-        }
-      }
-      sum += a.get(ia) * b.get(ib)
-    }
-    result.set(r, sum)
+  const result = zeros(resultShape.length > 0 ? resultShape : [1])
+  for (const idx of enumerateIndices(dims)) {
+    const ri = resultShape.length > 0 ? resultIndexIds.map((i) => idx[i]) : [0]
+    const p = indexIdLists
+      .map((indexIds, i) => arrays[i].get(indexIds.map((j) => idx[j])))
+      .reduce((a, b) => a * b, 1)
+    result.set(ri, result.get(ri) + p)
   }
 
   return result

@@ -94,7 +94,7 @@ describe('einsum', () => {
       [2],
       [3]
     ])
-    const c = einsum([['i', 'j'], ['j', 'k'], ['i', 'k']], a, b)
+    const c = einsum([['i', 'j'], ['j', 'k']], ['i', 'k'], a, b)
     expect(c.shape).to.deep.equal([2, 1])
     expect(c.get([0, 0])).to.equal(14)
     expect(c.get([1, 0])).to.equal(32)
