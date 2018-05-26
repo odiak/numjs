@@ -76,21 +76,21 @@ function isReshapable (oldShape: number[], newShape: number[]): boolean {
 }
 
 function* enumerateIndices (shape: Shape): Iterable<number[]> {
-  if (shape.length === 0 || shapeProduct(shape) === 0) {
+  const p = shapeProduct(shape)
+  const n = shape.length
+  if (n === 0 || p === 0) {
     return
   }
 
-  const indices = shape.map(() => 0)
-  while (indices.every((idx, i) => idx < shape[i])) {
-    yield indices.slice()
-    indices[0] += 1
-    for (let i = 1; i < indices.length; i++) {
-      if (indices[i - 1] < shape[i - 1]) {
-        break
-      }
-      indices[i - 1] = 0
-      indices[i] += 1
+  const indices = new Array(n)
+  for (let i = 0; i < p; i++) {
+    let k = i
+    for (let j = n - 1; j > 0; j--) {
+      indices[j] = k % shape[j]
+      k = (k / shape[j]) | 0
     }
+    indices[0] = k
+    yield indices.slice()
   }
 }
 
