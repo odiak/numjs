@@ -2,6 +2,14 @@ type Shape = number[]
 
 type Operand = number | NDArray
 
+type BinaryOperator = (n: number, m: number) => number
+
+type UniversalBinaryOperator = (a: Operand, b: Operand) => NDArray
+
+type UnaryOperator = (n: number) => number
+
+type UniversalUnaryOperator = (n: Operand) => NDArray
+
 export class NDArray {
   data: number[]
   shape: number[]
@@ -60,6 +68,10 @@ export function zeros (shapeOrNumber: Shape | number): NDArray {
   }
   const p = shapeProduct(shape)
   return new NDArray((new Array(p)).fill(0), shape)
+}
+
+export function zerosLike (array: NDArray): NDArray {
+  return zeros(array.shape)
 }
 
 function shapeProduct (indices: number[]): number {
@@ -195,11 +207,7 @@ export function einsum (indexNameLists: Array<Array<string>>, resultIndexNames: 
   return result
 }
 
-export function operate (f: (n: number, m: number) => number, a: Operand, b: Operand): Operand {
-  if (typeof a === 'number' && typeof b === 'number') {
-    return f(a, b)
-  }
-
+function operate (f: BinaryOperator, a: Operand, b: Operand): NDArray {
   if (typeof a === 'number') {
     a = createArray([a]).reshape((b as NDArray).shape.map(() => 1))
   }
@@ -234,28 +242,32 @@ export function operate (f: (n: number, m: number) => number, a: Operand, b: Ope
   return result
 }
 
-const addOperator = (a: number, b: number) => a + b
-const subOperator = (a: number, b: number) => a - b
-const mulOperator = (a: number, b: number) => a * b
-const divOperator = (a: number, b: number) => a / b
-const powOperator = (a: number, b: number) => a ** b
-
-export function add (a: Operand, b: Operand): Operand {
-  return operate(addOperator, a, b)
+function createUniversalBinaryFunction (f: BinaryOperator): UniversalBinaryOperator {
+  return (a: Operand, b: Operand) => operate(f, a, b)
 }
 
-export function sub (a: Operand, b: Operand): Operand {
-  return operate(subOperator, a, b)
+export const add = createUniversalBinaryFunction((a, b) => a + b)
+export const sub = createUniversalBinaryFunction((a, b) => a - b)
+export const mul = createUniversalBinaryFunction((a, b) => a * b)
+export const div = createUniversalBinaryFunction((a, b) => a / b)
+export const pow = createUniversalBinaryFunction((a, b) => a ** b)
+
+function operateUnary (f: UnaryOperator, a: Operand): NDArray {
+  if (typeof a === 'number') {
+    a = createArray([a])
+  }
+
+  const result = zerosLike(a)
+  for (const i of enumerateIndices(result.shape)) {
+    result.set(i, f(a.get(i)))
+  }
+
+  return result
 }
 
-export function mul (a: Operand, b: Operand): Operand {
-  return operate(mulOperator, a, b)
+function createUniversalUnaryOperator (f: UnaryOperator): UniversalUnaryOperator {
+  return (a: Operand) => operateUnary(f, a)
 }
 
-export function div (a: Operand, b: Operand): Operand {
-  return operate(divOperator, a, b)
-}
-
-export function pow (a: Operand, b: Operand): Operand {
-  return operate(powOperator, a, b)
-}
+export const neg = createUniversalUnaryOperator((a) => -a)
+export const exp = createUniversalUnaryOperator((a) => Math.exp(a))

@@ -116,22 +116,22 @@ describe('add', () => {
       [2]
     ])
 
-    const r1 = add(10, 21) as number
+    const r1 = add(10, 21).get([0])
     expect(r1).to.eq(31)
 
-    const r2 = add(a, 1) as NDArray
+    const r2 = add(a, 1)
     expect(r2.shape).to.deep.eq([2, 3])
     expect(r2.get([0, 0])).to.eq(2)
     expect(r2.get([0, 1])).to.eq(3)
     expect(r2.get([1, 1])).to.eq(6)
 
-    const r3 = add(a, b) as NDArray
+    const r3 = add(a, b)
     expect(r3.shape).to.deep.eq([2, 3])
     expect(r3.get([0, 0])).to.eq(3)
     expect(r3.get([0, 1])).to.eq(3)
     expect(r3.get([1, 2])).to.eq(6)
 
-    const r4 = add(a, c) as NDArray
+    const r4 = add(a, c)
     expect(r4.shape).to.deep.eq([2, 3])
     expect(r4.get([0, 0])).to.eq(2)
     expect(r4.get([1, 1])).to.eq(7)
