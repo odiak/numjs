@@ -1,4 +1,4 @@
-import { NDArray, zeros, createArray, einsum } from './index'
+import { NDArray, zeros, createArray, einsum, add, sub, mul, div, pow } from './index'
 import { expect } from 'chai'
 import 'mocha'
 
@@ -98,5 +98,42 @@ describe('einsum', () => {
     expect(c.shape).to.deep.equal([2, 1])
     expect(c.get([0, 0])).to.equal(14)
     expect(c.get([1, 0])).to.equal(32)
+  })
+})
+
+describe('add', () => {
+  it('works', () => {
+    const a = createArray([
+      [1, 2, 3],
+      [4, 5, 6]
+    ])
+    const b = createArray([
+      [2, 1, 3],
+      [3, 4, 0]
+    ])
+    const c = createArray([
+      [1],
+      [2]
+    ])
+
+    const r1 = add(10, 21) as number
+    expect(r1).to.eq(31)
+
+    const r2 = add(a, 1) as NDArray
+    expect(r2.shape).to.deep.eq([2, 3])
+    expect(r2.get([0, 0])).to.eq(2)
+    expect(r2.get([0, 1])).to.eq(3)
+    expect(r2.get([1, 1])).to.eq(6)
+
+    const r3 = add(a, b) as NDArray
+    expect(r3.shape).to.deep.eq([2, 3])
+    expect(r3.get([0, 0])).to.eq(3)
+    expect(r3.get([0, 1])).to.eq(3)
+    expect(r3.get([1, 2])).to.eq(6)
+
+    const r4 = add(a, c) as NDArray
+    expect(r4.shape).to.deep.eq([2, 3])
+    expect(r4.get([0, 0])).to.eq(2)
+    expect(r4.get([1, 1])).to.eq(7)
   })
 })

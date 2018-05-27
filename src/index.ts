@@ -1,5 +1,7 @@
 type Shape = number[]
 
+type Operand = number | NDArray
+
 export class NDArray {
   data: number[]
   shape: number[]
@@ -191,4 +193,69 @@ export function einsum (indexNameLists: Array<Array<string>>, resultIndexNames: 
   }
 
   return result
+}
+
+export function operate (f: (n: number, m: number) => number, a: Operand, b: Operand): Operand {
+  if (typeof a === 'number' && typeof b === 'number') {
+    return f(a, b)
+  }
+
+  if (typeof a === 'number') {
+    a = createArray([a]).reshape((b as NDArray).shape.map(() => 1))
+  }
+  if (typeof b === 'number') {
+    b = createArray([b]).reshape((a as NDArray).shape.map(() => 1))
+  }
+
+  if (a.shape.length !== b.shape.length) {
+    throw new Error('Incompatible shape')
+  }
+  const r = a.shape.length
+  for (let i = 0; i < r; i++) {
+    if (a.shape[i] !== 1 && b.shape[i] !== 1 && a.shape[i] !== b.shape[i]) {
+      throw new Error('Incompatible shape')
+    }
+  }
+
+  const ma = a.shape.map((s) => s > 1 ? 1 : 0)
+  const mb = b.shape.map((s) => s > 1 ? 1 : 0)
+
+  const resultShape = a.shape.map((s, i) => Math.max(s, (b as NDArray).shape[i]))
+  const result = zeros(resultShape)
+  const ia = new Array(r)
+  const ib = new Array(r)
+  for (const i of enumerateIndices(resultShape)) {
+    for (let j = 0; j < r; j++) {
+      ia[j] = i[j] * ma[j]
+      ib[j] = i[j] * mb[j]
+    }
+    result.set(i, f(a.get(ia), b.get(ib)))
+  }
+  return result
+}
+
+const addOperator = (a: number, b: number) => a + b
+const subOperator = (a: number, b: number) => a - b
+const mulOperator = (a: number, b: number) => a * b
+const divOperator = (a: number, b: number) => a / b
+const powOperator = (a: number, b: number) => a ** b
+
+export function add (a: Operand, b: Operand): Operand {
+  return operate(addOperator, a, b)
+}
+
+export function sub (a: Operand, b: Operand): Operand {
+  return operate(subOperator, a, b)
+}
+
+export function mul (a: Operand, b: Operand): Operand {
+  return operate(mulOperator, a, b)
+}
+
+export function div (a: Operand, b: Operand): Operand {
+  return operate(divOperator, a, b)
+}
+
+export function pow (a: Operand, b: Operand): Operand {
+  return operate(powOperator, a, b)
 }
