@@ -52,6 +52,21 @@ describe('NDArray', () => {
       expect(a.get([0, 1])).to.equal(b.get([1, 0]))
       expect(a.get([2, 0])).to.equal(b.get([0, 2]))
     })
+
+    it('works right with axes', () => {
+      const a = createArray([
+        [ [1, 2],
+          [3, 4]],
+        [ [5, 6],
+          [7, 8]]
+      ])
+
+      const t = a.transpose([0, 2, 1])
+      expect(t.get([0, 0, 1])).to.eq(a.get([0, 1, 0]))
+      expect(t.get([0, 1, 0])).to.eq(a.get([0, 0, 1]))
+      expect(t.get([1, 0, 1])).to.eq(a.get([1, 1, 0]))
+      expect(t.get([1, 1, 0])).to.eq(a.get([1, 0, 1]))
+    })
   })
 })
 

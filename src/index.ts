@@ -1,3 +1,5 @@
+import { range } from './utils'
+
 type Shape = number[]
 
 type Operand = number | NDArray
@@ -58,10 +60,24 @@ export class NDArray {
     return new NDArray(this.data.slice(), shape)
   }
 
-  transpose (): NDArray {
-    const newArray = new NDArray(this.data.slice(), this.shape.slice().reverse())
-    for (let idx of enumerateIndices(newArray.shape)) {
-      newArray.set(idx, this.get(idx.slice().reverse()))
+  transpose (axes?: number[]): NDArray {
+    if (axes) {
+      if (axes.length !== this.shape.length) {
+        throw new Error('Invalid axes')
+      }
+      for (let i = 0; i < this.shape.length; i++) {
+        if (!axes.includes(i)) {
+          throw new Error('Invalid axes')
+        }
+      }
+    } else {
+      axes = range(this.shape.length).reverse()
+    }
+    const resultShape = axes.map((s) => this.shape[s])
+    const newArray = zeros(resultShape)
+    for (let idx of enumerateIndices(this.shape)) {
+      const resultIndex = axes.map((s) => idx[s])
+      newArray.set(resultIndex, this.get(idx))
     }
     return newArray
   }
