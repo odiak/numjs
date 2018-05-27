@@ -1,4 +1,4 @@
-import { NDArray, zeros, createArray, einsum, add, sub, mul, div, pow, argMin, neg } from './index'
+import { NDArray, zeros, createArray, einsum, add, sub, mul, div, pow, argMin, neg, argMax } from './index'
 import { expect } from 'chai'
 import 'mocha'
 
@@ -168,5 +168,23 @@ describe('argMin', () => {
     const m1 = argMin(a, 1)
     expect(m1.get(0)).to.eq(1)
     expect(m1.get(1)).to.eq(2)
+  })
+})
+
+describe('argMax', () => {
+  it('works right for 2d array', () => {
+    const a = createArray([
+      [2, 1, 3],
+      [4, 2, 1]
+    ])
+
+    const m0 = argMax(a, 0)
+    expect(m0.get(0)).to.eq(1)
+    expect(m0.get(1)).to.eq(1)
+    expect(m0.get(2)).to.eq(0)
+
+    const m1 = argMax(a, 1)
+    expect(m1.get(0)).to.eq(2)
+    expect(m1.get(1)).to.eq(0)
   })
 })

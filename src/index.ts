@@ -317,3 +317,39 @@ export function argMin (array: NDArray, axis: number): NDArray {
 
   return result
 }
+
+export function argMax (array: NDArray, axis: number): NDArray {
+  if (axis < 0 || axis >= array.shape.length) {
+    throw new Error('invalid axis')
+  }
+
+  const resultShape = array.shape.slice()
+  resultShape.splice(axis, 1)
+
+  if (shapeProduct(array.shape) === 0) {
+    return new NDArray([], resultShape)
+  }
+
+  const shape = array.shape
+  const subShape = shape.slice()
+  subShape[axis] = 1
+
+  const result = zeros(resultShape)
+
+  for (const i of enumerateIndices(subShape)) {
+    let max = array.get(i)
+    let maxIndex = 0
+    for (let j = 1; j < shape[axis]; j++) {
+      i[axis] = j
+      const v = array.get(i)
+      if (v > max) {
+        max = v
+        maxIndex = j
+      }
+    }
+    i.splice(axis, 1)
+    result.set(i, maxIndex)
+  }
+
+  return result
+}
