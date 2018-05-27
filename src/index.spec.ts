@@ -131,6 +131,16 @@ describe('einsum', () => {
     expect(c.get([0, 0])).to.equal(14)
     expect(c.get([1, 0])).to.equal(32)
   })
+
+  it('works on case aggregating into scalar', () => {
+    const a = createArray([
+      [1, 2, 3],
+      [4, 5, 6]
+    ])
+    const n = einsum([['i', 'j']], [], a)
+    expect(n.shape).to.deep.eq([1])
+    expect(n.get()).to.eq(21)
+  })
 })
 
 describe('add', () => {
