@@ -209,10 +209,14 @@ export function einsum (indexNameLists: Array<Array<string>>, resultIndexNames: 
 
 function operate (f: BinaryOperator, a: Operand, b: Operand): NDArray {
   if (typeof a === 'number') {
-    a = createArray([a]).reshape((b as NDArray).shape.map(() => 1))
+    if (typeof b === 'number') {
+      a = createArray([a])
+    } else {
+      a = createArray([a]).reshape((b as NDArray).shape.map(() => 1))
+    }
   }
   if (typeof b === 'number') {
-    b = createArray([b]).reshape((a as NDArray).shape.map(() => 1))
+    b = createArray([b]).reshape(a.shape.map(() => 1))
   }
 
   if (a.shape.length !== b.shape.length) {
