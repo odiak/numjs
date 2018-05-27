@@ -81,6 +81,19 @@ export class NDArray {
     }
     return newArray
   }
+
+  swapAxes (a1: number, a2: number): NDArray {
+    if (a1 < 0 || a1 >= this.shape.length) {
+      throw new Error('Invalid axis 1')
+    }
+    if (a2 < 0 || a2 >= this.shape.length) {
+      throw new Error('Invalid axis 2')
+    }
+    const i = range(this.shape.length)
+    i[a1] = a2
+    i[a2] = a1
+    return this.transpose(i)
+  }
 }
 
 export function zeros (shapeOrNumber: Shape | number): NDArray {

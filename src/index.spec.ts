@@ -68,6 +68,23 @@ describe('NDArray', () => {
       expect(t.get([1, 1, 0])).to.eq(a.get([1, 0, 1]))
     })
   })
+
+  describe('.swapAxes', () => {
+    it('works right', () => {
+      const a = createArray([
+        [ [1, 2],
+          [3, 4]],
+        [ [5, 6],
+          [7, 8]]
+      ])
+
+      const t = a.swapAxes(1, 2)
+      expect(t.get([0, 0, 1])).to.eq(a.get([0, 1, 0]))
+      expect(t.get([0, 1, 0])).to.eq(a.get([0, 0, 1]))
+      expect(t.get([1, 0, 1])).to.eq(a.get([1, 1, 0]))
+      expect(t.get([1, 1, 0])).to.eq(a.get([1, 0, 1]))
+    })
+  })
 })
 
 describe('zeros', () => {
