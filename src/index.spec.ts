@@ -1,4 +1,4 @@
-import { NDArray, zeros, createArray, einsum, add, sub, mul, div, pow } from './index'
+import { NDArray, zeros, createArray, einsum, add, sub, mul, div, pow, argMin } from './index'
 import { expect } from 'chai'
 import 'mocha'
 
@@ -135,5 +135,23 @@ describe('add', () => {
     expect(r4.shape).to.deep.eq([2, 3])
     expect(r4.get([0, 0])).to.eq(2)
     expect(r4.get([1, 1])).to.eq(7)
+  })
+})
+
+describe('argMin', () => {
+  it('works right for 2d array', () => {
+    const a = createArray([
+      [2, 1, 3],
+      [4, 2, 1]
+    ])
+
+    const m0 = argMin(a, 0)
+    expect(m0.get(0)).to.eq(0)
+    expect(m0.get(1)).to.eq(0)
+    expect(m0.get(2)).to.eq(1)
+
+    const m1 = argMin(a, 1)
+    expect(m1.get(0)).to.eq(1)
+    expect(m1.get(1)).to.eq(2)
   })
 })
