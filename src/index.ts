@@ -26,12 +26,18 @@ export class NDArray {
     return new NDArray([], [])
   }
 
-  get (indices: number[]): number {
+  get (indices: (number | number[]) = 0): number {
+    if (typeof indices === 'number') {
+      indices = [indices]
+    }
     const idx = flattenIndices(indices, this.shape)
     return this.data[idx]
   }
 
-  set (indices: number[], value: number) {
+  set (indices: (number | number[]), value: number) {
+    if (typeof indices === 'number') {
+      indices = [indices]
+    }
     const idx = flattenIndices(indices, this.shape)
     this.data[idx] = value
   }

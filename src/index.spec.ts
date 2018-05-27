@@ -116,7 +116,7 @@ describe('add', () => {
       [2]
     ])
 
-    const r1 = add(10, 21).get([0])
+    const r1 = add(10, 21).get()
     expect(r1).to.eq(31)
 
     const r2 = add(a, 1)
