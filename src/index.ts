@@ -276,11 +276,12 @@ function* enumerateIndices (shape: Shape): Iterable<number[]> {
   for (let i = 0; i < p; i++) {
     let k = i
     for (let j = n - 1; j > 0; j--) {
-      indices[j] = k % shape[j]
-      k = (k / shape[j]) | 0
+      const s = shape[j]
+      const m = indices[j] = k % s
+      k = (k - m) / s
     }
     indices[0] = k
-    yield indices.slice()
+    yield indices
   }
 }
 
@@ -356,11 +357,16 @@ export function einsum (indexNameLists: Array<Array<string>>, resultIndexNames: 
   }
 
   const result = zeros(resultShape.length > 0 ? resultShape : [1])
+  const ai = indexIdLists.map((ids) => new Array(ids.length) as number[])
   for (const idx of enumerateIndices(dims)) {
     const ri = resultShape.length > 0 ? resultIndexIds.map((i) => idx[i]) : [0]
-    const p = indexIdLists
-      .map((indexIds, i) => arrays[i].get(indexIds.map((j) => idx[j])))
-      .reduce((a, b) => a * b, 1)
+    let p = 1
+    for (let i = 0; i < arrays.length; i++) {
+      for (let j = 0; j < indexIdLists[i].length; j++) {
+        ai[i][j] = idx[indexIdLists[i][j]]
+      }
+      p *= arrays[i].get(ai[i])
+    }
     result.set(ri, result.get(ri) + p)
   }
 
@@ -396,12 +402,14 @@ function operate (f: BinaryOperator, a: Operand, b: Operand): NDArray {
   const result = zeros(resultShape)
   const ia = new Array(r)
   const ib = new Array(r)
-  for (const i of enumerateIndices(resultShape)) {
+  let i = 0
+  for (const idx of enumerateIndices(resultShape)) {
     for (let j = 0; j < r; j++) {
-      ia[j] = i[j] * ma[j]
-      ib[j] = i[j] * mb[j]
+      ia[j] = idx[j] * ma[j]
+      ib[j] = idx[j] * mb[j]
     }
-    result.set(i, f(a.get(ia), b.get(ib)))
+    result.data[i] = f(a.get(ia), b.get(ib))
+    i++
   }
   return result
 }
