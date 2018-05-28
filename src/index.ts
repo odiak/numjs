@@ -317,22 +317,6 @@ function flattenIndices (indices: number[], shape: number[]): number {
   return indices.reduce((a, idx, i) => a + idx * ks[i], 0)
 }
 
-function subscript (array: NDArray, indices: number[]): NDArray {
-  while (indices.length < array.shape.length) {
-    indices.push(null)
-  }
-
-  const newShape = array.shape.slice()
-  // for (let [idx, i] of indices.entries()) {
-  //   if (idx == null) {
-  //     newShape[i] = idx
-  //   }
-  // }
-  const newArray = NDArray.empty(newShape)
-
-  return newArray
-}
-
 export function einsum (indexNameLists: Array<Array<string>>, resultIndexNames: Array<string>, ...arrays: Array<NDArray>): NDArray {
   if (indexNameLists.length === 0) {
     throw new Error('Specify one or more elements for 1st argument')
