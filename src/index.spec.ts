@@ -1,4 +1,4 @@
-import { NDArray, zeros, createArray, einsum, add, sub, mul, div, pow, argMin, neg, argMax } from './index'
+import { NDArray, zeros, createArray, einsum, add, sub, mul, div, pow, argMin, neg, argMax, All, range } from './index'
 import { expect } from 'chai'
 import 'mocha'
 
@@ -90,6 +90,39 @@ describe('NDArray', () => {
       expect(t.get([0, 1, 0])).to.eq(a.get([0, 0, 1]))
       expect(t.get([1, 0, 1])).to.eq(a.get([1, 1, 0]))
       expect(t.get([1, 1, 0])).to.eq(a.get([1, 0, 1]))
+    })
+  })
+
+  describe('.slice', () => {
+    it('works right', () => {
+      const a = createArray([
+        [ [1, 2],
+          [3, 4]],
+        [ [5, 6],
+          [7, 8]]
+      ])
+      const s1 = a.slice()
+      expect(s1.shape).to.deep.eq([2, 2, 2])
+      expect(s1.data).to.deep.eq([1, 2, 3, 4, 5, 6, 7, 8])
+
+      const s2 = a.slice(1, All, All)
+      expect(s2.shape).to.deep.eq([2, 2])
+      expect(s2.data).to.deep.eq([5, 6, 7, 8])
+
+      const s3 = a.slice(All, 0, All)
+      expect(s3.shape).to.deep.eq([2, 2])
+      expect(s3.data).to.deep.eq([1, 2, 5, 6])
+
+      const b = createArray([
+        [1, 2, 3, 4, 5, 6],
+        [7, 8, 9, 0, 1, 2],
+        [3, 4, 5, 6, 7, 8],
+        [9, 0, 1, 2, 3, 4]
+      ])
+
+      const s4 = b.slice(range(1, 3), range(1, 4, 2))
+      expect(s4.shape).to.deep.eq([2, 2])
+      expect(s4.data).to.deep.eq([8, 0, 4, 6])
     })
   })
 })

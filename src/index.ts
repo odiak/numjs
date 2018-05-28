@@ -1,4 +1,4 @@
-import { range } from './utils'
+import { range as _range } from './utils'
 
 type Shape = number[]
 
@@ -11,6 +11,93 @@ type UniversalBinaryOperator = (a: Operand, b: Operand) => NDArray
 type UnaryOperator = (n: number) => number
 
 type UniversalUnaryOperator = (n: Operand) => NDArray
+
+interface Range {
+  start?: number
+  end?: number
+  step?: number
+}
+
+export const All: Range = Object.freeze({})
+
+export function range (start?: number, end?: number, step?: number): Range {
+  if (start != null && end == null) {
+    end = start
+    start = 0
+  }
+  if (step == null) {
+    step = 1
+  }
+  return { start, end, step }
+}
+
+function* enumerateRange (range: Range, size: number): Iterable<number> {
+  let { start, end, step } = range
+  if (step == null) {
+    step = 1
+  }
+  if (start == null) {
+    if (step > 0) {
+      start = -Infinity
+    } else {
+      start = Infinity
+    }
+  } else if (start < 0) {
+    start = size + start
+  }
+  start = Math.floor(start)
+  if (end == null) {
+    if (step > 0) {
+      end = Infinity
+    } else {
+      end = -Infinity
+    }
+  } else if (end < 0) {
+    end = size + end
+  }
+  end = Math.floor(end)
+  step = Math.floor(step)
+  if (step === 0) {
+    throw new Error('Step cannot be 0')
+  }
+
+  if (step > 0) {
+    for (let i = Math.max(start, 0); i < end && i < size; i += step) {
+      yield i
+    }
+  } else {
+    for (let i = Math.min(start, size - 1); i > end && i >= 0; i += step) {
+      yield i
+    }
+  }
+}
+
+function enumerateRanges (ranges: Array<Range>, shape: Shape): Iterable<[number[], number[]]> {
+  if (ranges.length !== shape.length) {
+    throw new Error('Sizes of ranges and shape are different')
+  }
+  if (ranges.length === 0) {
+    return
+  }
+
+  return ranges.reduce(function* (a: Iterable<[number[], number[]]>, r: Range, i): Iterable<[number[], number[]]> {
+    for (const [idx1, idx2] of a) {
+      let k = 0
+      for (const j of enumerateRange(r, shape[i])) {
+        yield [idx1.concat([j]), idx2.concat([k])]
+        k++
+      }
+    }
+  }, [[[], []]])
+}
+
+function countRange (r: Range, size: number) {
+  let c = 0
+  for (const i of enumerateRange(r, size)) {
+    c++
+  }
+  return c
+}
 
 export class NDArray {
   data: number[]
@@ -73,7 +160,7 @@ export class NDArray {
         }
       }
     } else {
-      axes = range(this.shape.length).reverse()
+      axes = _range(this.shape.length).reverse()
     }
     const resultShape = axes.map((s) => this.shape[s])
     const newArray = zeros(resultShape)
@@ -91,7 +178,7 @@ export class NDArray {
     if (a2 < 0 || a2 >= this.shape.length) {
       throw new Error('Invalid axis 2')
     }
-    const i = range(this.shape.length)
+    const i = _range(this.shape.length)
     i[a1] = a2
     i[a2] = a1
     return this.transpose(i)
@@ -120,6 +207,33 @@ export class NDArray {
   }
   argMax (axis: number) {
     return argMax(this, axis)
+  }
+
+  slice (...indexOrRanges: Array<number | Range>): NDArray {
+    if (indexOrRanges.length > this.shape.length) {
+      throw new Error('Too many indices')
+    }
+    while (indexOrRanges.length < this.shape.length) {
+      indexOrRanges.push(All)
+    }
+
+    const ranges = indexOrRanges.map((ir) => {
+      if (typeof ir === 'number') {
+        return range(ir, ir + 1)
+      }
+      return ir
+    })
+    const resultShape = ranges.map((r, i) => countRange(r, this.shape[i]))
+    const result = zeros(resultShape)
+
+    if (result.size > 0) {
+      for (const [idx1, idx2] of enumerateRanges(ranges, this.shape)) {
+        result.set(idx2, this.get(idx1))
+      }
+    }
+
+    const normalizedShape = resultShape.filter((s, i) => typeof indexOrRanges[i] !== 'number')
+    return result.reshape(normalizedShape)
   }
 }
 
