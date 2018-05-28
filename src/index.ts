@@ -15,6 +15,7 @@ type UniversalUnaryOperator = (n: Operand) => NDArray
 export class NDArray {
   data: number[]
   shape: number[]
+  size: number
 
   constructor (data: number[], shape: Shape) {
     if (data.length !== shapeProduct(shape)) {
@@ -22,6 +23,7 @@ export class NDArray {
     }
     this.data = data
     this.shape = shape
+    this.size = shapeProduct(shape)
   }
 
   static empty (shape: number[] | number): NDArray {

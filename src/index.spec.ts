@@ -20,6 +20,13 @@ describe('NDArray', () => {
     expect(b.get([1, 2])).to.equal(6)
   })
 
+  describe('.size', () => {
+    it('returns correct value', () => {
+      const a = zeros([2, 3, 4, 5])
+      expect(a.size).to.eq(120)
+    })
+  })
+
   describe('.reshape', () => {
     it('works', () => {
       const a = new NDArray([1, 2, 3, 4, 5, 6], [2, 3])
