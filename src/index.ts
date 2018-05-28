@@ -94,6 +94,31 @@ export class NDArray {
     i[a2] = a1
     return this.transpose(i)
   }
+
+  add (x: Operand) {
+    return add(this, x)
+  }
+  sub (x: Operand) {
+    return sub(this, x)
+  }
+  mul (x: Operand) {
+    return mul(this, x)
+  }
+  div (x: Operand) {
+    return div(this, x)
+  }
+  pow (x: Operand) {
+    return pow(this, x)
+  }
+  neg () {
+    return neg(this)
+  }
+  argMin (axis: number) {
+    return argMin(this, axis)
+  }
+  argMax (axis: number) {
+    return argMax(this, axis)
+  }
 }
 
 export function zeros (shapeOrNumber: Shape | number): NDArray {
