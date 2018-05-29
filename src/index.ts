@@ -80,15 +80,18 @@ function enumerateRanges (ranges: Array<Range>, shape: Shape): Iterable<[number[
     return
   }
 
-  return ranges.reduce(function* (a: Iterable<[number[], number[]]>, r: Range, i): Iterable<[number[], number[]]> {
-    for (const [idx1, idx2] of a) {
-      let k = 0
-      for (const j of enumerateRange(r, shape[i])) {
-        yield [idx1.concat([j]), idx2.concat([k])]
-        k++
+  return ranges.reduce(
+    function* (a: Iterable<[number[], number[]]>, r: Range, i): Iterable<[number[], number[]]> {
+      for (const [idx1, idx2] of a) {
+        let k = 0
+        for (const j of enumerateRange(r, shape[i])) {
+          yield [idx1.concat([j]), idx2.concat([k])]
+          k++
+        }
       }
-    }
-  }, [[[], []]])
+    },
+    [[[], []]]
+  )
 }
 
 function countRange (r: Range, size: number) {
@@ -262,7 +265,11 @@ function isValidShape (shape: number[]): boolean {
 }
 
 function isReshapable (oldShape: number[], newShape: number[]): boolean {
-  return isValidShape(oldShape) && isValidShape(newShape) && shapeProduct(oldShape) === shapeProduct(newShape)
+  return (
+    isValidShape(oldShape) &&
+    isValidShape(newShape) &&
+    shapeProduct(oldShape) === shapeProduct(newShape)
+  )
 }
 
 function* enumerateIndices (shape: Shape): Iterable<number[]> {
@@ -318,7 +325,11 @@ function flattenIndices (indices: number[], shape: number[]): number {
   return indices.reduce((a, idx, i) => a + idx * ks[i], 0)
 }
 
-export function einsum (indexNameLists: Array<Array<string>>, resultIndexNames: Array<string>, ...arrays: Array<NDArray>): NDArray {
+export function einsum (
+  indexNameLists: Array<Array<string>>,
+  resultIndexNames: Array<string>,
+  ...arrays: Array<NDArray>
+): NDArray {
   if (indexNameLists.length === 0) {
     throw new Error('Specify one or more elements for 1st argument')
   }
