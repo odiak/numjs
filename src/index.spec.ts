@@ -1,4 +1,19 @@
-import { NDArray, zeros, createArray, einsum, add, sub, mul, div, pow, argMin, neg, argMax, All, range } from './index'
+import {
+  NDArray,
+  zeros,
+  createArray,
+  einsum,
+  add,
+  sub,
+  mul,
+  div,
+  pow,
+  argMin,
+  neg,
+  argMax,
+  All,
+  range
+} from './index'
 import { expect } from 'chai'
 import 'mocha'
 
