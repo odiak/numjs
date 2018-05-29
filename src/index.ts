@@ -325,11 +325,22 @@ function flattenIndices (indices: number[], shape: number[]): number {
   return indices.reduce((a, idx, i) => a + idx * ks[i], 0)
 }
 
+function trim (s: string): string {
+  return s.trim()
+}
+function parseExprForEinsum (expr: string): [Array<Array<string>>, Array<string>] {
+  const [a, b] = expr.split('->').map(trim)
+  return [
+    a.split(';').map((s) => s.split(',').map(trim)),
+    b.length > 0 ? b.split(',').map(trim) : []
+  ]
+}
+
 export function einsum (
-  indexNameLists: Array<Array<string>>,
-  resultIndexNames: Array<string>,
+  expr: string,
   ...arrays: Array<NDArray>
 ): NDArray {
+  const [indexNameLists, resultIndexNames] = parseExprForEinsum(expr)
   if (indexNameLists.length === 0) {
     throw new Error('Specify one or more elements for 1st argument')
   }

@@ -181,7 +181,7 @@ describe('einsum', () => {
       [2],
       [3]
     ])
-    const c = einsum([['i', 'j'], ['j', 'k']], ['i', 'k'], a, b)
+    const c = einsum('i,j; j,k -> i,k', a, b)
     expect(c.shape).to.deep.equal([2, 1])
     expect(c.get([0, 0])).to.equal(14)
     expect(c.get([1, 0])).to.equal(32)
@@ -192,7 +192,7 @@ describe('einsum', () => {
       [1, 2, 3],
       [4, 5, 6]
     ])
-    const n = einsum([['i', 'j']], [], a)
+    const n = einsum('i1,i2 ->', a)
     expect(n.shape).to.deep.eq([1])
     expect(n.get()).to.eq(21)
   })
