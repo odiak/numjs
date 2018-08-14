@@ -77,7 +77,7 @@ function enumerateRanges(ranges: Array<Range>, shape: Shape): Iterable<[number[]
     throw new Error('Sizes of ranges and shape are different')
   }
   if (ranges.length === 0) {
-    return
+    return []
   }
 
   return ranges.reduce(
