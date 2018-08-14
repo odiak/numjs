@@ -136,6 +136,14 @@ export class NDArray {
     this.data[idx] = value
   }
 
+  update(indices: number | number[], updater: (x: number) => number) {
+    if (typeof indices === 'number') {
+      indices = [indices]
+    }
+    const idx = flattenIndices(indices, this.shape)
+    this.data[idx] = updater(this.data[idx])
+  }
+
   reshape(shape: number[]): NDArray {
     const i = shape.indexOf(-1)
     if (i !== -1) {
@@ -237,6 +245,10 @@ export class NDArray {
 
     const normalizedShape = resultShape.filter((s, i) => typeof indexOrRanges[i] !== 'number')
     return result.reshape(normalizedShape)
+  }
+
+  sum(axes?: number | number[]): NDArray {
+    return sum(this, axes)
   }
 }
 
@@ -533,4 +545,55 @@ export function argMax(array: NDArray, axis: number): NDArray {
   }
 
   return result
+}
+
+function checkAxesForAggregation(
+  axesOrAxis: number[] | number | undefined,
+  shape: Shape
+): [number[], number[]] {
+  const dim = shape.length
+  if (axesOrAxis == null) {
+    return [_range(dim), []]
+  }
+  let axes: number[]
+  if (typeof axesOrAxis === 'number') {
+    axes = [axesOrAxis]
+  } else {
+    axes = axesOrAxis.slice()
+  }
+
+  {
+    const _axes: number[] = []
+    for (const ax of axes) {
+      if (ax !== (ax | 0) || ax < 0 || ax >= dim || _axes.includes(ax)) {
+        throw new Error('invalid axes')
+      }
+      _axes.push(ax)
+    }
+  }
+
+  const remaining = _range(dim).filter((a) => !axes.includes(a))
+  return [axes, remaining]
+}
+
+export function sum(
+  array: NDArray,
+  axisOrAxes: number | number[] | undefined = undefined
+): NDArray {
+  const shape = array.shape
+  const [, remainingAxes] = checkAxesForAggregation(axisOrAxes, shape)
+  const newShape = remainingAxes.map((a) => shape[a])
+  if (newShape.length === 0) {
+    let sum = 0
+    for (const idx of enumerateIndices(shape)) {
+      sum += array.get(idx)
+    }
+    return createArray([sum])
+  }
+  const newArray = zeros(newShape)
+  for (const idx of enumerateIndices(shape)) {
+    const newIdx = remainingAxes.map((a) => idx[a])
+    newArray.update(newIdx, (x) => x + array.get(idx))
+  }
+  return newArray
 }
