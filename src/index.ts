@@ -20,7 +20,7 @@ interface Range {
 
 export const All: Range = Object.freeze({})
 
-export function range (start?: number, end?: number, step?: number): Range {
+export function range(start?: number, end?: number, step?: number): Range {
   if (start != null && end == null) {
     end = start
     start = 0
@@ -31,7 +31,7 @@ export function range (start?: number, end?: number, step?: number): Range {
   return { start, end, step }
 }
 
-function* enumerateRange (range: Range, size: number): Iterable<number> {
+function* enumerateRange(range: Range, size: number): Iterable<number> {
   let { start, end, step } = range
   if (step == null) {
     step = 1
@@ -72,7 +72,7 @@ function* enumerateRange (range: Range, size: number): Iterable<number> {
   }
 }
 
-function enumerateRanges (ranges: Array<Range>, shape: Shape): Iterable<[number[], number[]]> {
+function enumerateRanges(ranges: Array<Range>, shape: Shape): Iterable<[number[], number[]]> {
   if (ranges.length !== shape.length) {
     throw new Error('Sizes of ranges and shape are different')
   }
@@ -81,7 +81,7 @@ function enumerateRanges (ranges: Array<Range>, shape: Shape): Iterable<[number[
   }
 
   return ranges.reduce(
-    function* (a: Iterable<[number[], number[]]>, r: Range, i): Iterable<[number[], number[]]> {
+    function*(a: Iterable<[number[], number[]]>, r: Range, i): Iterable<[number[], number[]]> {
       for (const [idx1, idx2] of a) {
         let k = 0
         for (const j of enumerateRange(r, shape[i])) {
@@ -94,7 +94,7 @@ function enumerateRanges (ranges: Array<Range>, shape: Shape): Iterable<[number[
   )
 }
 
-function countRange (r: Range, size: number) {
+function countRange(r: Range, size: number) {
   let c = 0
   for (const i of enumerateRange(r, size)) {
     c++
@@ -107,7 +107,7 @@ export class NDArray {
   shape: number[]
   size: number
 
-  constructor (data: number[], shape: Shape) {
+  constructor(data: number[], shape: Shape) {
     if (data.length !== shapeProduct(shape)) {
       throw new Error('invalid array and shape')
     }
@@ -116,11 +116,11 @@ export class NDArray {
     this.size = shapeProduct(shape)
   }
 
-  static empty (shape: number[] | number): NDArray {
+  static empty(shape: number[] | number): NDArray {
     return new NDArray([], [])
   }
 
-  get (indices: (number | number[]) = 0): number {
+  get(indices: number | number[] = 0): number {
     if (typeof indices === 'number') {
       indices = [indices]
     }
@@ -128,7 +128,7 @@ export class NDArray {
     return this.data[idx]
   }
 
-  set (indices: (number | number[]), value: number) {
+  set(indices: number | number[], value: number) {
     if (typeof indices === 'number') {
       indices = [indices]
     }
@@ -136,7 +136,7 @@ export class NDArray {
     this.data[idx] = value
   }
 
-  reshape (shape: number[]): NDArray {
+  reshape(shape: number[]): NDArray {
     const i = shape.indexOf(-1)
     if (i !== -1) {
       const p = shapeProduct(this.shape)
@@ -152,7 +152,7 @@ export class NDArray {
     return new NDArray(this.data.slice(), shape)
   }
 
-  transpose (axes?: number[]): NDArray {
+  transpose(axes?: number[]): NDArray {
     if (axes) {
       if (axes.length !== this.shape.length) {
         throw new Error('Invalid axes')
@@ -174,7 +174,7 @@ export class NDArray {
     return newArray
   }
 
-  swapAxes (a1: number, a2: number): NDArray {
+  swapAxes(a1: number, a2: number): NDArray {
     if (a1 < 0 || a1 >= this.shape.length) {
       throw new Error('Invalid axis 1')
     }
@@ -187,32 +187,32 @@ export class NDArray {
     return this.transpose(i)
   }
 
-  add (x: Operand) {
+  add(x: Operand) {
     return add(this, x)
   }
-  sub (x: Operand) {
+  sub(x: Operand) {
     return sub(this, x)
   }
-  mul (x: Operand) {
+  mul(x: Operand) {
     return mul(this, x)
   }
-  div (x: Operand) {
+  div(x: Operand) {
     return div(this, x)
   }
-  pow (x: Operand) {
+  pow(x: Operand) {
     return pow(this, x)
   }
-  neg () {
+  neg() {
     return neg(this)
   }
-  argMin (axis: number) {
+  argMin(axis: number) {
     return argMin(this, axis)
   }
-  argMax (axis: number) {
+  argMax(axis: number) {
     return argMax(this, axis)
   }
 
-  slice (...indexOrRanges: Array<number | Range>): NDArray {
+  slice(...indexOrRanges: Array<number | Range>): NDArray {
     if (indexOrRanges.length > this.shape.length) {
       throw new Error('Too many indices')
     }
@@ -240,31 +240,31 @@ export class NDArray {
   }
 }
 
-export function zeros (shapeOrNumber: Shape | number): NDArray {
+export function zeros(shapeOrNumber: Shape | number): NDArray {
   const shape = typeof shapeOrNumber === 'number' ? [shapeOrNumber] : shapeOrNumber
   if (!isValidShape(shape)) {
     throw new Error('invalid shape')
   }
   const p = shapeProduct(shape)
-  return new NDArray((new Array(p)).fill(0), shape)
+  return new NDArray(new Array(p).fill(0), shape)
 }
 
-export function zerosLike (array: NDArray): NDArray {
+export function zerosLike(array: NDArray): NDArray {
   return zeros(array.shape)
 }
 
-function shapeProduct (indices: number[]): number {
+function shapeProduct(indices: number[]): number {
   if (indices.length === 0) {
     return 0
   }
   return indices.reduce((a, b) => a * b, 1)
 }
 
-function isValidShape (shape: number[]): boolean {
+function isValidShape(shape: number[]): boolean {
   return shape.every((n) => Number.isFinite(n) && n >= 0)
 }
 
-function isReshapable (oldShape: number[], newShape: number[]): boolean {
+function isReshapable(oldShape: number[], newShape: number[]): boolean {
   return (
     isValidShape(oldShape) &&
     isValidShape(newShape) &&
@@ -272,7 +272,7 @@ function isReshapable (oldShape: number[], newShape: number[]): boolean {
   )
 }
 
-function* enumerateIndices (shape: Shape): Iterable<number[]> {
+function* enumerateIndices(shape: Shape): Iterable<number[]> {
   const p = shapeProduct(shape)
   const n = shape.length
   if (n === 0 || p === 0) {
@@ -284,7 +284,7 @@ function* enumerateIndices (shape: Shape): Iterable<number[]> {
     let k = i
     for (let j = n - 1; j > 0; j--) {
       const s = shape[j]
-      const m = indices[j] = k % s
+      const m = (indices[j] = k % s)
       k = (k - m) / s
     }
     indices[0] = k
@@ -292,7 +292,7 @@ function* enumerateIndices (shape: Shape): Iterable<number[]> {
   }
 }
 
-export function createArray (raw: any[]): NDArray {
+export function createArray(raw: any[]): NDArray {
   const shape = []
   for (let a = raw; Array.isArray(a); a = a[0]) {
     shape.push(a.length)
@@ -304,7 +304,7 @@ export function createArray (raw: any[]): NDArray {
   return new NDArray(data, shape)
 }
 
-function flatten (array: any[], dest: any[] = []): any[] {
+function flatten(array: any[], dest: any[] = []): any[] {
   for (const a of array) {
     if (Array.isArray(a)) {
       flatten(a, dest)
@@ -315,7 +315,7 @@ function flatten (array: any[], dest: any[] = []): any[] {
   return dest
 }
 
-function flattenIndices (indices: number[], shape: number[]): number {
+function flattenIndices(indices: number[], shape: number[]): number {
   const ks = [1]
   let k = 1
   for (let i = shape.length - 1; i >= 1; i--) {
@@ -325,10 +325,10 @@ function flattenIndices (indices: number[], shape: number[]): number {
   return indices.reduce((a, idx, i) => a + idx * ks[i], 0)
 }
 
-function trim (s: string): string {
+function trim(s: string): string {
   return s.trim()
 }
-function parseExprForEinsum (expr: string): [Array<Array<string>>, Array<string>] {
+function parseExprForEinsum(expr: string): [Array<Array<string>>, Array<string>] {
   const [a, b] = expr.split('->').map(trim)
   return [
     a.split(';').map((s) => s.split(',').map(trim)),
@@ -336,10 +336,7 @@ function parseExprForEinsum (expr: string): [Array<Array<string>>, Array<string>
   ]
 }
 
-export function einsum (
-  expr: string,
-  ...arrays: Array<NDArray>
-): NDArray {
+export function einsum(expr: string, ...arrays: Array<NDArray>): NDArray {
   const [indexNameLists, resultIndexNames] = parseExprForEinsum(expr)
   if (indexNameLists.length === 0) {
     throw new Error('Specify one or more elements for 1st argument')
@@ -349,7 +346,7 @@ export function einsum (
       throw new Error(`Number of index names and rank of array at ${i}`)
     }
   }
-  const idByIndexName: {[s: string]: number} = {}
+  const idByIndexName: { [s: string]: number } = {}
   const dims: Shape = []
   const indexIdLists = indexNameLists.map((a) => a.map((i) => 0))
   for (const [i, indexNames] of indexNameLists.entries()) {
@@ -395,7 +392,7 @@ export function einsum (
   return result
 }
 
-function operate (f: BinaryOperator, a: Operand, b: Operand): NDArray {
+function operate(f: BinaryOperator, a: Operand, b: Operand): NDArray {
   if (typeof a === 'number') {
     if (typeof b === 'number') {
       a = createArray([a])
@@ -417,8 +414,8 @@ function operate (f: BinaryOperator, a: Operand, b: Operand): NDArray {
     }
   }
 
-  const ma = a.shape.map((s) => s > 1 ? 1 : 0)
-  const mb = b.shape.map((s) => s > 1 ? 1 : 0)
+  const ma = a.shape.map((s) => (s > 1 ? 1 : 0))
+  const mb = b.shape.map((s) => (s > 1 ? 1 : 0))
 
   const resultShape = a.shape.map((s, i) => Math.max(s, (b as NDArray).shape[i]))
   const result = zeros(resultShape)
@@ -436,7 +433,7 @@ function operate (f: BinaryOperator, a: Operand, b: Operand): NDArray {
   return result
 }
 
-function createUniversalBinaryFunction (f: BinaryOperator): UniversalBinaryOperator {
+function createUniversalBinaryFunction(f: BinaryOperator): UniversalBinaryOperator {
   return (a: Operand, b: Operand) => operate(f, a, b)
 }
 
@@ -446,7 +443,7 @@ export const mul = createUniversalBinaryFunction((a, b) => a * b)
 export const div = createUniversalBinaryFunction((a, b) => a / b)
 export const pow = createUniversalBinaryFunction((a, b) => a ** b)
 
-function operateUnary (f: UnaryOperator, a: Operand): NDArray {
+function operateUnary(f: UnaryOperator, a: Operand): NDArray {
   if (typeof a === 'number') {
     a = createArray([a])
   }
@@ -459,14 +456,14 @@ function operateUnary (f: UnaryOperator, a: Operand): NDArray {
   return result
 }
 
-function createUniversalUnaryOperator (f: UnaryOperator): UniversalUnaryOperator {
+function createUniversalUnaryOperator(f: UnaryOperator): UniversalUnaryOperator {
   return (a: Operand) => operateUnary(f, a)
 }
 
 export const neg = createUniversalUnaryOperator((a) => -a)
 export const exp = createUniversalUnaryOperator((a) => Math.exp(a))
 
-export function argMin (array: NDArray, axis: number): NDArray {
+export function argMin(array: NDArray, axis: number): NDArray {
   if (axis < 0 || axis >= array.shape.length) {
     throw new Error('invalid axis')
   }
@@ -502,7 +499,7 @@ export function argMin (array: NDArray, axis: number): NDArray {
   return result
 }
 
-export function argMax (array: NDArray, axis: number): NDArray {
+export function argMax(array: NDArray, axis: number): NDArray {
   if (axis < 0 || axis >= array.shape.length) {
     throw new Error('invalid axis')
   }
