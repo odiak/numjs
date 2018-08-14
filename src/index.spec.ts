@@ -13,7 +13,8 @@ import {
   argMax,
   All,
   range,
-  sum
+  sum,
+  mean
 } from './index'
 import { expect } from 'chai'
 import 'mocha'
@@ -278,5 +279,37 @@ describe('sum', () => {
     const sum4 = sum(a)
     expect(sum4.shape).to.deep.eq([1])
     expect(sum4.get()).to.eq(78)
+  })
+})
+
+describe('mean', () => {
+  it('works right for 1d array', () => {
+    const a = createArray([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+
+    const m1 = mean(a)
+    expect(m1.shape).to.deep.eq([1])
+    expect(m1.get()).to.eq(5.5)
+
+    const m2 = mean(a, [0])
+    expect(m2.shape).to.deep.eq([1])
+    expect(m2.get()).to.eq(5.5)
+  })
+
+  it('works right for 3d array', () => {
+    const a = createArray([[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 10], [11, 12]]])
+
+    const m1 = mean(a, [1, 2])
+    expect(m1.shape).to.deep.eq([3])
+    expect(m1.get(0)).to.eq(2.5)
+    expect(m1.get(1)).to.eq(6.5)
+    expect(m1.get(2)).to.eq(10.5)
+
+    const m2 = mean(a, [])
+    expect(m2.shape).to.deep.eq(a.shape)
+    expect(m2.data).to.deep.eq(a.data)
+
+    const m3 = mean(a)
+    expect(m3.shape).to.deep.eq([1])
+    expect(m3.get()).to.eq(6.5)
   })
 })

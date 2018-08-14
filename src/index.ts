@@ -250,6 +250,10 @@ export class NDArray {
   sum(axes?: number | number[]): NDArray {
     return sum(this, axes)
   }
+
+  mean(axes?: number | number[]): NDArray {
+    return mean(this, axes)
+  }
 }
 
 export function zeros(shapeOrNumber: Shape | number): NDArray {
@@ -596,4 +600,17 @@ export function sum(
     newArray.update(newIdx, (x) => x + array.get(idx))
   }
   return newArray
+}
+
+export function mean(
+  array: NDArray,
+  axisOrAxes: number | number[] | undefined = undefined
+): NDArray {
+  const s = sum(array, axisOrAxes)
+  const sp = shapeProduct(array.shape)
+  const newSp = shapeProduct(s.shape)
+  if (sp === 0) {
+    return s
+  }
+  return s.div(sp / newSp)
 }
