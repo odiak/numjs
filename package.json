@@ -9,9 +9,9 @@
     "@types/mocha": "^5.2.0",
     "chai": "^4.1.2",
     "mocha": "^5.2.0",
+    "prettier": "^1.13.0",
     "ts-node": "^6.0.4",
     "tslint": "^5.10.0",
-    "tslint-config-standard": "^7.0.0",
     "typescript": "^2.8.3"
   },
   "dependencies": {
@@ -19,5 +19,16 @@
   },
   "scripts": {
     "test": "mocha -r ts-node/register src/**/*.spec.ts"
+  },
+  "prettier": {
+    "printWidth": 100,
+    "tabWidth": 2,
+    "useTabs": false,
+    "semi": false,
+    "singleQuote": true,
+    "trailingComma": "none",
+    "bracketSpacing": true,
+    "arrowParens": "always",
+    "jsxBracketSameLine": false
   }
 }

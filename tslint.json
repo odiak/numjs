@@ -1,5 +1,4 @@
 {
-  "extends": ["tslint-config-standard"],
   "rules": {
     "max-line-length": [true, 100]
   }
