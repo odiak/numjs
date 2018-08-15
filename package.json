@@ -1,7 +1,7 @@
 {
   "name": "@odiak/numjs",
   "description": "NumPy-like N-dimensional array implementation",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "author": "Kaido Iwamoto <h6824.kaido@gmail.com>",
   "dependencies": {
     "@types/node": "^10.1.2"
@@ -17,7 +17,7 @@
     "typescript": "^2.8.3"
   },
   "files": [
-    "build"
+    "dist"
   ],
   "homepage": "https://github.com/odiak/numjs",
   "keywords": [
@@ -27,7 +27,7 @@
     "vector"
   ],
   "license": "MIT",
-  "main": "build/inde.js",
+  "main": "dist/index.js",
   "prettier": {
     "printWidth": 100,
     "tabWidth": 2,
