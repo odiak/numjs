@@ -8,6 +8,7 @@ import {
   neg,
   argMax,
   All,
+  NewAxis,
   range,
   sum,
   mean
@@ -121,6 +122,14 @@ describe('NDArray', () => {
       const s4 = b.slice(range(1, 3), range(1, 4, 2))
       expect(s4.shape).to.deep.eq([2, 2])
       expect(s4.data).to.deep.eq([8, 0, 4, 6])
+
+      const s5 = b.slice(All, NewAxis, NewAxis, All) // add new axis
+      expect(s5.shape).to.deep.eq([4, 1, 1, 6])
+      expect(s5.data).to.deep.eq(b.data)
+
+      const s6 = b.slice(All, NewAxis, 1)
+      expect(s6.shape).to.deep.eq([4, 1])
+      expect(s6.data).to.deep.eq([2, 8, 4, 0])
     })
   })
 })

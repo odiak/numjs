@@ -20,6 +20,8 @@ export interface Range {
 
 export const All: Range = Object.freeze({})
 
+export const NewAxis = null
+
 export function range(start?: number, end?: number, step?: number): Range {
   if (start != null && end == null) {
     end = start
@@ -220,30 +222,49 @@ export class NDArray {
     return argMax(this, axis)
   }
 
-  slice(...indexOrRanges: Array<number | Range>): NDArray {
-    if (indexOrRanges.length > this.shape.length) {
+  slice(...indexOrRanges: Array<number | Range | null>): NDArray {
+    const indexOrRanges_ = indexOrRanges.filter((e) => e != null) as Array<number | Range>
+
+    if (indexOrRanges_.length > this.shape.length) {
       throw new Error('Too many indices')
     }
-    while (indexOrRanges.length < this.shape.length) {
+    while (indexOrRanges_.length < this.shape.length) {
+      indexOrRanges_.push(All)
       indexOrRanges.push(All)
     }
 
-    const ranges = indexOrRanges.map((ir) => {
+    const ranges = indexOrRanges_.map((ir) => {
       if (typeof ir === 'number') {
         return range(ir, ir + 1)
       }
       return ir
     })
     const resultShape = ranges.map((r, i) => countRange(r, this.shape[i]))
-    const result = zeros(resultShape)
+    let result: NDArray
 
-    if (result.size > 0) {
-      for (const [idx1, idx2] of enumerateRanges(ranges, this.shape)) {
-        result.set(idx2, this.get(idx1))
+    if (isSameShape(this.shape, resultShape)) {
+      result = new NDArray(this.data.slice(), this.shape)
+    } else {
+      result = zeros(resultShape)
+      if (result.size > 0) {
+        for (const [idx1, idx2] of enumerateRanges(ranges, this.shape)) {
+          result.set(idx2, this.get(idx1))
+        }
       }
     }
 
-    const normalizedShape = resultShape.filter((s, i) => typeof indexOrRanges[i] !== 'number')
+    const normalizedShape: number[] = []
+    let i = 0
+    for (const ir of indexOrRanges) {
+      if (ir == null) {
+        normalizedShape.push(1)
+      } else {
+        if (typeof ir !== 'number') {
+          normalizedShape.push(resultShape[i])
+        }
+        i++
+      }
+    }
     return result.reshape(normalizedShape)
   }
 
@@ -254,6 +275,10 @@ export class NDArray {
   mean(axes?: number | number[]): NDArray {
     return mean(this, axes)
   }
+}
+
+function isSameShape(shape1: Shape, shape2: Shape): boolean {
+  return shape1.length === shape2.length && shape1.every((s1, i) => s1 === shape2[i])
 }
 
 export function zeros(shapeOrNumber: Shape | number): NDArray {
