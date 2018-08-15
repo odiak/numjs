@@ -1,9 +1,11 @@
 {
-  "name": "numjs",
+  "name": "@odiak/numjs",
+  "description": "NumPy-like N-dimensional array implementation",
   "version": "0.0.0",
-  "main": "src/index.ts",
   "author": "Kaido Iwamoto <h6824.kaido@gmail.com>",
-  "license": "MIT",
+  "dependencies": {
+    "@types/node": "^10.1.2"
+  },
   "devDependencies": {
     "@types/chai": "^4.1.3",
     "@types/mocha": "^5.2.0",
@@ -14,12 +16,18 @@
     "tslint": "^5.10.0",
     "typescript": "^2.8.3"
   },
-  "dependencies": {
-    "@types/node": "^10.1.2"
-  },
-  "scripts": {
-    "test": "mocha -r ts-node/register src/**/*.spec.ts"
-  },
+  "files": [
+    "build"
+  ],
+  "homepage": "https://github.com/odiak/numjs",
+  "keywords": [
+    "matrix",
+    "ndarray",
+    "numpy",
+    "vector"
+  ],
+  "license": "MIT",
+  "main": "build/inde.js",
   "prettier": {
     "printWidth": 100,
     "tabWidth": 2,
@@ -30,5 +38,13 @@
     "bracketSpacing": true,
     "arrowParens": "always",
     "jsxBracketSameLine": false
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/odiak/numjs"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "mocha -r ts-node/register src/**/*.spec.ts"
   }
 }

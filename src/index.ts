@@ -1,18 +1,18 @@
 import { range as _range } from './utils'
 
-type Shape = number[]
+export type Shape = number[]
 
-type Operand = number | NDArray
+export type Operand = number | NDArray
 
-type BinaryOperator = (n: number, m: number) => number
+export type BinaryOperator = (n: number, m: number) => number
 
-type UniversalBinaryOperator = (a: Operand, b: Operand) => NDArray
+export type UniversalBinaryOperator = (a: Operand, b: Operand) => NDArray
 
-type UnaryOperator = (n: number) => number
+export type UnaryOperator = (n: number) => number
 
-type UniversalUnaryOperator = (n: Operand) => NDArray
+export type UniversalUnaryOperator = (n: Operand) => NDArray
 
-interface Range {
+export interface Range {
   start?: number
   end?: number
   step?: number

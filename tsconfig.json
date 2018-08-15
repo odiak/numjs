@@ -3,6 +3,11 @@
     "lib": ["es2015", "es2017"],
     "target": "es6",
     "strict": true,
-    "alwaysStrict": true
-  }
+    "alwaysStrict": true,
+    "outDir": "./dist",
+    "declaration": true,
+    "module": "commonjs"
+  },
+  "include": ["./src"],
+  "exclude": ["./src/**/*.spec.ts"]
 }
