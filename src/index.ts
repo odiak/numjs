@@ -275,6 +275,10 @@ export class NDArray {
   mean(axes?: number | number[]): NDArray {
     return mean(this, axes)
   }
+
+  clip(min: number, max: number, out?: NDArray): NDArray {
+    return clip(this, min, max, out)
+  }
 }
 
 function isSameShape(shape1: Shape, shape2: Shape): boolean {
@@ -646,4 +650,8 @@ export function mean(
     return s
   }
   return s.div(sp / newSp)
+}
+
+export function clip(array: NDArray, min: number, max: number, out?: NDArray): NDArray {
+  return operateUnary((n) => Math.max(Math.min(n, max), min), array, out)
 }

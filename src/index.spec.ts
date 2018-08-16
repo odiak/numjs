@@ -11,7 +11,8 @@ import {
   NewAxis,
   range,
   sum,
-  mean
+  mean,
+  clip
 } from './index'
 import { expect } from 'chai'
 import 'mocha'
@@ -326,5 +327,20 @@ describe('mean', () => {
     const m3 = mean(a)
     expect(m3.shape).to.deep.eq([1])
     expect(m3.get()).to.eq(6.5)
+  })
+})
+
+describe('clip', () => {
+  it('works', () => {
+    const a = createArray([[1, 2, 3], [5, 3, 10]])
+
+    const c = clip(a, 2, 5)
+    expect(c.shape).to.deep.eq(a.shape)
+    expect(c.data).to.deep.eq([2, 2, 3, 5, 3, 5])
+
+    const d = zeros(a.shape)
+    const e = clip(a, 2, 5, d)
+    expect(e).to.eq(d)
+    expect(e.data).to.deep.eq(c.data)
   })
 })
