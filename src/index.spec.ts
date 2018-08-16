@@ -205,6 +205,11 @@ describe('add', () => {
     expect(r4.shape).to.deep.eq([2, 3])
     expect(r4.get([0, 0])).to.eq(2)
     expect(r4.get([1, 1])).to.eq(7)
+
+    const d = zeros([2, 3])
+    const r5 = add(a, c, d) // specifying out array
+    expect(r5).to.eq(d)
+    expect(r5.data).to.deep.eq(r4.data)
   })
 })
 
@@ -217,6 +222,11 @@ describe('neg', () => {
     expect(n.get([0, 1])).to.eq(2)
     expect(n.get([1, 0])).to.eq(-3)
     expect(n.get([1, 1])).to.eq(0)
+
+    const b = zeros(a.shape)
+    const m = neg(a, b) // specifying out array
+    expect(m).to.eq(b)
+    expect(m.data).to.deep.eq(n.data)
   })
 })
 

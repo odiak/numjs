@@ -6,11 +6,11 @@ export type Operand = number | NDArray
 
 export type BinaryOperator = (n: number, m: number) => number
 
-export type UniversalBinaryOperator = (a: Operand, b: Operand) => NDArray
+export type UniversalBinaryOperator = (a: Operand, b: Operand, out?: NDArray) => NDArray
 
 export type UnaryOperator = (n: number) => number
 
-export type UniversalUnaryOperator = (n: Operand) => NDArray
+export type UniversalUnaryOperator = (n: Operand, out?: NDArray) => NDArray
 
 export interface Range {
   start?: number
@@ -197,23 +197,23 @@ export class NDArray {
     return this.transpose(i)
   }
 
-  add(x: Operand) {
-    return add(this, x)
+  add(x: Operand, out?: NDArray) {
+    return add(this, x, out)
   }
-  sub(x: Operand) {
-    return sub(this, x)
+  sub(x: Operand, out?: NDArray) {
+    return sub(this, x, out)
   }
-  mul(x: Operand) {
-    return mul(this, x)
+  mul(x: Operand, out?: NDArray) {
+    return mul(this, x, out)
   }
-  div(x: Operand) {
-    return div(this, x)
+  div(x: Operand, out?: NDArray) {
+    return div(this, x, out)
   }
-  pow(x: Operand) {
-    return pow(this, x)
+  pow(x: Operand, out?: NDArray) {
+    return pow(this, x, out)
   }
-  neg() {
-    return neg(this)
+  neg(out?: NDArray) {
+    return neg(this, out)
   }
   argMin(axis: number) {
     return argMin(this, axis)
@@ -433,7 +433,7 @@ export function einsum(expr: string, ...arrays: Array<NDArray>): NDArray {
   return result
 }
 
-function operate(f: BinaryOperator, a: Operand, b: Operand): NDArray {
+function operate(f: BinaryOperator, a: Operand, b: Operand, out?: NDArray): NDArray {
   if (typeof a === 'number') {
     if (typeof b === 'number') {
       a = createArray([a])
@@ -459,7 +459,11 @@ function operate(f: BinaryOperator, a: Operand, b: Operand): NDArray {
   const mb = b.shape.map((s) => (s > 1 ? 1 : 0))
 
   const resultShape = a.shape.map((s, i) => Math.max(s, (b as NDArray).shape[i]))
-  const result = zeros(resultShape)
+  if (out != null && !isSameShape(out.shape, resultShape)) {
+    throw new Error('Shape of `out` is incompatible')
+  }
+
+  const result = out || zeros(resultShape)
   const ia = new Array(r)
   const ib = new Array(r)
   let i = 0
@@ -475,7 +479,7 @@ function operate(f: BinaryOperator, a: Operand, b: Operand): NDArray {
 }
 
 function createUniversalBinaryFunction(f: BinaryOperator): UniversalBinaryOperator {
-  return (a: Operand, b: Operand) => operate(f, a, b)
+  return (a: Operand, b: Operand, out?: NDArray) => operate(f, a, b, out)
 }
 
 export const add = createUniversalBinaryFunction((a, b) => a + b)
@@ -484,12 +488,16 @@ export const mul = createUniversalBinaryFunction((a, b) => a * b)
 export const div = createUniversalBinaryFunction((a, b) => a / b)
 export const pow = createUniversalBinaryFunction((a, b) => a ** b)
 
-function operateUnary(f: UnaryOperator, a: Operand): NDArray {
+function operateUnary(f: UnaryOperator, a: Operand, out?: NDArray): NDArray {
   if (typeof a === 'number') {
     a = createArray([a])
   }
 
-  const result = zerosLike(a)
+  if (out != null && !isSameShape(a.shape, out.shape)) {
+    throw new Error('Shape of `out` is incompatible')
+  }
+
+  const result = out || zerosLike(a)
   for (const i of enumerateIndices(result.shape)) {
     result.set(i, f(a.get(i)))
   }
@@ -498,7 +506,7 @@ function operateUnary(f: UnaryOperator, a: Operand): NDArray {
 }
 
 function createUniversalUnaryOperator(f: UnaryOperator): UniversalUnaryOperator {
-  return (a: Operand) => operateUnary(f, a)
+  return (a: Operand, out?: NDArray) => operateUnary(f, a, out)
 }
 
 export const neg = createUniversalUnaryOperator((a) => -a)
