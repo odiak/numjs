@@ -13,7 +13,9 @@ import {
   range,
   sum,
   mean,
-  clip
+  clip,
+  min,
+  max
 } from './index'
 import { expect } from 'chai'
 import 'mocha'
@@ -357,5 +359,31 @@ describe('clip', () => {
     const e = clip(a, 2, 5, d)
     expect(e).to.eq(d)
     expect(e.data).to.deep.eq(c.data)
+  })
+})
+
+describe('min', () => {
+  it('works', () => {
+    const a = createArray([[3, 2, 4], [5, 1, -1]])
+
+    const m1 = min(a, 1)
+    expect(m1.get(0)).to.eq(2)
+    expect(m1.get(1)).to.eq(-1)
+
+    const m2 = min(a)
+    expect(m2.get()).to.eq(-1)
+  })
+})
+
+describe('max', () => {
+  it('works', () => {
+    const a = createArray([[3, 2, 4], [5, 1, -1]])
+
+    const m1 = max(a, 1)
+    expect(m1.get(0)).to.eq(4)
+    expect(m1.get(1)).to.eq(5)
+
+    const m2 = max(a)
+    expect(m2.get()).to.eq(5)
   })
 })

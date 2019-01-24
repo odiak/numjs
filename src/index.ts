@@ -20,6 +20,8 @@ export interface Range {
 
 export type ShapeOrNumber = Shape | number
 
+export type AxisOrAxes = number | number[]
+
 export const All: Range = Object.freeze({})
 
 export const NewAxis = null
@@ -280,6 +282,13 @@ export class NDArray {
 
   clip(min: number, max: number, out?: NDArray): NDArray {
     return clip(this, min, max, out)
+  }
+
+  min(axisOrAxes?: AxisOrAxes): NDArray {
+    return min(this, axisOrAxes)
+  }
+  max(axisOrAxes?: AxisOrAxes): NDArray {
+    return max(this, axisOrAxes)
   }
 }
 
@@ -660,4 +669,42 @@ export function mean(
 
 export function clip(array: NDArray, min: number, max: number, out?: NDArray): NDArray {
   return operateUnary((n) => Math.max(Math.min(n, max), min), array, out)
+}
+
+export function min(array: NDArray, axisOrAxes?: AxisOrAxes): NDArray {
+  const shape = array.shape
+  const [, remainingAxes] = checkAxesForAggregation(axisOrAxes, shape)
+  const newShape = remainingAxes.map((a) => shape[a])
+  if (newShape.length === 0) {
+    let min = Infinity
+    for (const idx of enumerateIndices(shape)) {
+      min = Math.min(min, array.get(idx))
+    }
+    return createArray([min])
+  }
+  const newArray = repeat(Infinity, newShape)
+  for (const idx of enumerateIndices(shape)) {
+    const newIdx = remainingAxes.map((a) => idx[a])
+    newArray.update(newIdx, (x) => Math.min(x, array.get(idx)))
+  }
+  return newArray
+}
+
+export function max(array: NDArray, axisOrAxes?: AxisOrAxes): NDArray {
+  const shape = array.shape
+  const [, remainingAxes] = checkAxesForAggregation(axisOrAxes, shape)
+  const newShape = remainingAxes.map((a) => shape[a])
+  if (newShape.length === 0) {
+    let max = -Infinity
+    for (const idx of enumerateIndices(shape)) {
+      max = Math.max(max, array.get(idx))
+    }
+    return createArray([max])
+  }
+  const newArray = repeat(-Infinity, newShape)
+  for (const idx of enumerateIndices(shape)) {
+    const newIdx = remainingAxes.map((a) => idx[a])
+    newArray.update(newIdx, (x) => Math.max(x, array.get(idx)))
+  }
+  return newArray
 }
