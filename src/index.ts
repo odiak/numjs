@@ -18,6 +18,8 @@ export interface Range {
   step?: number
 }
 
+export type ShapeOrNumber = Shape | number
+
 export const All: Range = Object.freeze({})
 
 export const NewAxis = null
@@ -285,13 +287,17 @@ function isSameShape(shape1: Shape, shape2: Shape): boolean {
   return shape1.length === shape2.length && shape1.every((s1, i) => s1 === shape2[i])
 }
 
-export function zeros(shapeOrNumber: Shape | number): NDArray {
+export function repeat(x: number, shapeOrNumber: ShapeOrNumber): NDArray {
   const shape = typeof shapeOrNumber === 'number' ? [shapeOrNumber] : shapeOrNumber
   if (!isValidShape(shape)) {
     throw new Error('invalid shape')
   }
   const p = shapeProduct(shape)
-  return new NDArray(new Array(p).fill(0), shape)
+  return new NDArray(new Array(p).fill(x), shape)
+}
+
+export function zeros(shapeOrNumber: ShapeOrNumber): NDArray {
+  return repeat(0, shapeOrNumber)
 }
 
 export function zerosLike(array: NDArray): NDArray {

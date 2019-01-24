@@ -1,5 +1,6 @@
 import {
   NDArray,
+  repeat,
   zeros,
   createArray,
   einsum,
@@ -132,6 +133,20 @@ describe('NDArray', () => {
       expect(s6.shape).to.deep.eq([4, 1])
       expect(s6.data).to.deep.eq([2, 8, 4, 0])
     })
+  })
+})
+
+describe('repeat', () => {
+  it('works', () => {
+    const a = repeat(2, [3, 3])
+    expect(a.get([1, 0])).to.equal(2)
+    expect(a.get([2, 2])).to.equal(2)
+  })
+
+  it('fails', () => {
+    expect(() => {
+      zeros([-1, -1])
+    }).to.throw()
   })
 })
 
