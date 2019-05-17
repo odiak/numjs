@@ -1,7 +1,7 @@
 {
   "name": "@odiak/numjs",
   "description": "NumPy-like N-dimensional array implementation",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "author": "Kaido Iwamoto <h6824.kaido@gmail.com>",
   "dependencies": {
     "@types/node": "^10.12.18"
