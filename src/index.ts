@@ -529,7 +529,7 @@ function createUniversalUnaryOperator(f: UnaryOperator): UniversalUnaryOperator 
 }
 
 export const neg = createUniversalUnaryOperator((a) => -a)
-export const exp = createUniversalUnaryOperator((a) => Math.exp(a))
+export const exp = createUniversalUnaryOperator(Math.exp)
 export const abs = createUniversalUnaryOperator(Math.abs)
 
 export function argMin(array: NDArray, axis: number): NDArray {

@@ -16,7 +16,8 @@ import {
   clip,
   min,
   max,
-  abs
+  abs,
+  exp
 } from './index'
 import { expect } from 'chai'
 import 'mocha'
@@ -398,5 +399,17 @@ describe('abs', () => {
     expect(b.get(1)).to.eq(2)
     expect(b.get(2)).to.eq(3)
     expect(b.get(3)).to.eq(1)
+  })
+})
+
+describe('exp', () => {
+  it('works', () => {
+    const a = createArray([0, -2, 3, 1])
+
+    const b = exp(a)
+    expect(b.get(0)).to.eq(Math.exp(0))
+    expect(b.get(1)).to.eq(Math.exp(-2))
+    expect(b.get(2)).to.eq(Math.exp(3))
+    expect(b.get(3)).to.eq(Math.exp(1))
   })
 })
