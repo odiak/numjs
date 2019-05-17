@@ -530,6 +530,7 @@ function createUniversalUnaryOperator(f: UnaryOperator): UniversalUnaryOperator 
 
 export const neg = createUniversalUnaryOperator((a) => -a)
 export const exp = createUniversalUnaryOperator((a) => Math.exp(a))
+export const abs = createUniversalUnaryOperator(Math.abs)
 
 export function argMin(array: NDArray, axis: number): NDArray {
   if (axis < 0 || axis >= array.shape.length) {
