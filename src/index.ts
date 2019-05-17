@@ -290,6 +290,13 @@ export class NDArray {
   max(axisOrAxes?: AxisOrAxes): NDArray {
     return max(this, axisOrAxes)
   }
+
+  operateUnary(f: UnaryOperator, out?: NDArray): NDArray {
+    return operateUnary(f, this, out)
+  }
+  map(f: UnaryOperator, out?: NDArray): NDArray {
+    return operateUnary(f, this, out)
+  }
 }
 
 function isSameShape(shape1: Shape, shape2: Shape): boolean {
@@ -507,7 +514,7 @@ export const mul = createUniversalBinaryFunction((a, b) => a * b)
 export const div = createUniversalBinaryFunction((a, b) => a / b)
 export const pow = createUniversalBinaryFunction((a, b) => a ** b)
 
-function operateUnary(f: UnaryOperator, a: Operand, out?: NDArray): NDArray {
+export function operateUnary(f: UnaryOperator, a: Operand, out?: NDArray): NDArray {
   if (typeof a === 'number') {
     a = createArray([a])
   }
@@ -523,6 +530,7 @@ function operateUnary(f: UnaryOperator, a: Operand, out?: NDArray): NDArray {
 
   return result
 }
+export const map = operateUnary
 
 function createUniversalUnaryOperator(f: UnaryOperator): UniversalUnaryOperator {
   return (a: Operand, out?: NDArray) => operateUnary(f, a, out)

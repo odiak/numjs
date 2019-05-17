@@ -17,7 +17,8 @@ import {
   min,
   max,
   abs,
-  exp
+  exp,
+  operateUnary
 } from './index'
 import { expect } from 'chai'
 import 'mocha'
@@ -411,5 +412,17 @@ describe('exp', () => {
     expect(b.get(1)).to.eq(Math.exp(-2))
     expect(b.get(2)).to.eq(Math.exp(3))
     expect(b.get(3)).to.eq(Math.exp(1))
+  })
+})
+
+describe('operateUnary', () => {
+  it('works', () => {
+    const a = createArray([[3, 2], [0, -1]])
+
+    const b = operateUnary((n) => n + 1, a)
+    expect(b.get([0, 0])).to.eq(4)
+    expect(b.get([0, 1])).to.eq(3)
+    expect(b.get([1, 0])).to.eq(1)
+    expect(b.get([1, 1])).to.eq(0)
   })
 })
