@@ -18,7 +18,8 @@ import {
   max,
   abs,
   exp,
-  operateUnary
+  operateUnary,
+  prod
 } from './index'
 import { expect } from 'chai'
 import 'mocha'
@@ -315,6 +316,43 @@ describe('sum', () => {
     const sum4 = sum(a)
     expect(sum4.shape).to.deep.eq([1])
     expect(sum4.get()).to.eq(78)
+  })
+})
+
+describe('prod', () => {
+  it('works right for 1d array', () => {
+    const a = createArray([1, 2, -1, 3, 1, 2])
+
+    const prod1 = prod(a)
+    expect(prod1.get()).to.eq(-12)
+    expect(prod1.shape).to.deep.eq([1])
+
+    const prod2 = prod(a, [0])
+    expect(prod2.get()).to.eq(-12)
+    expect(prod2.shape).to.deep.eq([1])
+  })
+
+  it('works right for 3d array', () => {
+    const a = createArray([[[1, 2], [2, -2]], [[1, 0], [-3, 2]], [[10, 1], [100, 3]]])
+
+    const prod1 = prod(a, [1, 2])
+    expect(prod1.shape).to.deep.eq([3])
+    expect(prod1.get(0)).to.eq(-8)
+    expect(prod1.get(1)).to.eq(0)
+    expect(prod1.get(2)).to.eq(3000)
+
+    const prod2 = prod(a, [0])
+    expect(prod2.shape).to.deep.eq([2, 2])
+    expect(prod2.get([0, 0])).to.eq(10)
+    expect(prod2.get([1, 0])).to.eq(-600)
+
+    const prod3 = prod(a, [])
+    expect(prod3.shape).to.deep.eq(a.shape)
+    expect(prod3.data).to.deep.eq(a.data)
+
+    const prod4 = prod(a)
+    expect(prod4.shape).to.deep.eq([1])
+    expect(prod4.get()).to.eq(0)
   })
 })
 

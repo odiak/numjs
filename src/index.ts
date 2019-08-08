@@ -275,6 +275,9 @@ export class NDArray {
   sum(axes?: number | number[]): NDArray {
     return sum(this, axes)
   }
+  prod(axes?: number | number[]): NDArray {
+    return prod(this, axes)
+  }
 
   mean(axes?: number | number[]): NDArray {
     return mean(this, axes)
@@ -659,6 +662,28 @@ export function sum(
   for (const idx of enumerateIndices(shape)) {
     const newIdx = remainingAxes.map((a) => idx[a])
     newArray.update(newIdx, (x) => x + array.get(idx))
+  }
+  return newArray
+}
+
+export function prod(
+  array: NDArray,
+  axisOrAxes: number | number[] | undefined = undefined
+): NDArray {
+  const shape = array.shape
+  const [, remainingAxes] = checkAxesForAggregation(axisOrAxes, shape)
+  const newShape = remainingAxes.map((a) => shape[a])
+  if (newShape.length === 0) {
+    let sum = 1
+    for (const idx of enumerateIndices(shape)) {
+      sum *= array.get(idx)
+    }
+    return createArray([sum])
+  }
+  const newArray = repeat(1, newShape)
+  for (const idx of enumerateIndices(shape)) {
+    const newIdx = remainingAxes.map((a) => idx[a])
+    newArray.update(newIdx, (x) => x * array.get(idx))
   }
   return newArray
 }
